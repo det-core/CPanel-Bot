@@ -31,6 +31,7 @@ import os from "os";
 import { fileTypeFromBuffer } from "file-type";
 import yts from "yt-search"
 import ytdl from '@vreden/youtube_scraper';
+import { getBuffer } from './lib/function.js';
 
 //=============================================//
 const datagc = JSON.parse(fsSync.readFileSync("./data/reseller.json"))
