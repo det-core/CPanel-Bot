@@ -164,7 +164,7 @@ const reply = m.reply = async (teks) => {
     contextInfo: {
       externalAdReply: {
         title: `${namaBot}`,
-        body: `${global.ucapan()}`,
+        body: `${global.greeting()}`,
         thumbnailUrl: global.foto,
         sourceUrl: global.url,
       }
@@ -1467,7 +1467,7 @@ let f = await fetch(domainV2 + "/api/application/users", {
 let data = await f.json();
 if (data.errors) return m.reply(JSON.stringify(data.errors[0], null, 2))
 let user = data.attributes
-let desc = tanggal(Date.now())
+let desc = date(Date.now())
 let usr_id = user.id
 let f1 = await fetch(domainV2 + `/api/application/nests/${nestidV2}/eggs/` + eggV2, {
 "method": "GET",
@@ -2016,7 +2016,7 @@ let f = await fetch(domain + "/api/application/users", {
 let data = await f.json();
 if (data.errors) return m.reply(JSON.stringify(data.errors[0], null, 2))
 let user = data.attributes
-let desc = tanggal(Date.now())
+let desc = date(Date.now())
 let usr_id = user.id
 let f1 = await fetch(domain + `/api/application/nests/${nestid}/eggs/` + egg, {
 "method": "GET",

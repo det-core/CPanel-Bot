@@ -79,7 +79,7 @@ async function startBot() {
     console.clear();
     
     if (pairingCode && !sock.authState.creds.registered) {
-    let phoneNumber = await InputNumber(chalk.cyan.bold('[!] -  Enter your number, Example 628:\n'));
+    let phoneNumber = await InputNumber(chalk.cyan.bold('[!] -  Enter your number, Example 2347030xxx:\n'));
     phoneNumber = phoneNumber.replace(/[^0-9]/g, "")
         setTimeout(async () => {
         const code = await sock.requestPairingCode(phoneNumber, global.pairingKode);
@@ -95,7 +95,7 @@ async function startBot() {
       if (!connection) return;
       if (connection === "connecting") {                     
       if (qr && !pairingCode) {
-      console.log("Scan QR ini di WhatsApp:");
+      console.log("Scan QR in WhatsApp:");
       qrcode.generate(qr, { small: true }); 
          }
         }
