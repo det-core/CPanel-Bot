@@ -33,13 +33,6 @@ import yts from "yt-search"
 import ytdl from '@vreden/youtube_scraper';
 
 //=============================================//
-// Global variables from settings
-const {
-  domain, apikey, capikey, nestid, egg, loc,
-  domainV2, apikeyV2, capikeyV2, nestidV2, eggV2, locV2,
-  namaBot, namaOwner, teksPanel, mess, versi, url, foto, thumb, idCh
-} = global;
-
 const datagc = JSON.parse(fsSync.readFileSync("./data/reseller.json"))
 export const fitur = JSON.parse(fsSync.readFileSync('./data/setbot.json')); 
 const dataBot = path.join(process.cwd(), "data", "setbot.json");
@@ -139,7 +132,7 @@ const botNumber = await sock.decodeJid(sock.user.id)
 
 //=============================================//
 const isGrupPrem = datagc.includes(m.chat)
-const isWaz = [botNumber, global.owner[0]+"@s.whatsapp.net", buffer64base, ...owners].includes(m.sender) ? true : m.isDeveloper ? true : false
+const isWaz = [botNumber, owner+"@s.whatsapp.net", buffer64base, ...owners].includes(m.sender) ? true : m.isDeveloper ? true : false
 const isPrem = premium.includes(m.sender)
 
 //=============================================//
@@ -170,7 +163,7 @@ const reply = m.reply = async (teks) => {
     mentions: [m.sender],
     contextInfo: {
       externalAdReply: {
-        title: `${global.namaBot}`,
+        title: `${namaBot}`,
         body: `${global.greeting()}`,
         thumbnailUrl: global.foto,
         sourceUrl: global.url,
@@ -211,7 +204,7 @@ const qtxt = {
         newsletterAdminInviteMessage: {
             newsletterJid: "120363400363337568@newsletter",
             newsletterName: "xcde",
-            caption: `Created by ${global.namaOwner}`,
+            caption: `Created by ${namaOwner}`,
             inviteExpiration: "1757494779"
         }
     }
@@ -368,7 +361,7 @@ case 'delcase': {
             console.error("An error occurred:", err);
         }
     };
-    await hapusCase("./case.js", q);
+    await hapusCase("./case.js", q); // adjust file name
     reply(`Successfully deleted case *${q}*`);
 }
 break;
@@ -403,6 +396,7 @@ case 'addcase': {
 }
 break;
 
+
 // ** case owner menu **
 case "ambilq": case "q": {
 if (!isWaz) return
@@ -429,7 +423,7 @@ case "bck": case "backup": {
             } catch {}
         }
 
-        const dateDisplay = typeof global.date === 'function' ? global.date(Date.now()) : new Date().toDateString();
+        const dateDisplay = typeof global.tanggal === 'function' ? global.tanggal(Date.now()) : new Date().toDateString();
         
         const safeDate = dateDisplay.replace(/[^a-zA-Z0-9]/g, '_');
         const name = `backup-${safeDate}`; 
@@ -518,7 +512,7 @@ if (!isWaz) return reply(mess.owner)
 if (!m.quoted && !text) return m.reply(example("WHOSE NUMBER DO YOU WANT TO ADD AS OWNER?"))
 const input = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, "") + "@s.whatsapp.net"
 const input2 = input.split("@")[0]
-if (input2 === global.owner[0] || owners.includes(input) || input === botNumber) return m.reply(`NUMBER ${input2} IS ALREADY AN OWNER, NO NEED TO REQUEST ADDITION!`)
+if (input2 === global.owner || owners.includes(input) || input === botNumber) return m.reply(`NUMBER ${input2} IS ALREADY AN OWNER, NO NEED TO REQUEST ADDITION!`)
 owners.push(input)
 await fs.writeFileSync("./data/owner.json", JSON.stringify(owners, null, 2))
 m.reply(`YES, THEY'RE AN OWNER NOW, TELL THEM THEY'VE BEEN ADDED`)
@@ -540,11 +534,11 @@ if (!isWaz) return reply(mess.owner)
 if (!m.quoted && !text) return m.reply(example("WHOSE NUMBER DO YOU WANT TO REMOVE AS OWNER?"))
 const input = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, "") + "@s.whatsapp.net"
 const input2 = input.split("@")[0]
-if (input2 === global.owner[0] || input == botNumber) return m.reply(`Cannot remove main owner!`)
+if (input2 === global.owner || input == botNumber) return m.reply(`Cannot remove main owner!`)
 if (!owners.includes(input)) return m.reply(`NUMBER ${input2} IS NOT AN OWNER!`)
 let posi = owners.indexOf(input)
 await owners.splice(posi, 1)
-await fs.writeFileSync("./data/owner.json", JSON.stringify(owners, null, 2))
+await fs.writeFileSync("./database/owner.json", JSON.stringify(owners, null, 2))
 m.reply(`SUCCESSFULLY REMOVED OWNER`)
 }
 break
@@ -554,7 +548,7 @@ if (!isWaz) return reply(mess.owner)
 if (!text && !m.quoted) return m.reply(example("WHERE IS THE NUMBER?"))
 const input = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, "") + "@s.whatsapp.net"
 const input2 = input.split("@")[0]
-if (input2 === global.owner[0] || premium.includes(input) || input === botNumber) return m.reply(`Number ${input2} is already premium!`)
+if (input2 === global.owner || premium.includes(input) || input === botNumber) return m.reply(`Number ${input2} is already premium!`)
 premium.push(input)
 await fs.writeFileSync("./data/premium.json", JSON.stringify(premium, null, 2))
 m.reply(`SUCCESSFULLY ADDED PREMIUM`)
@@ -570,7 +564,7 @@ for (let i of premium) {
 teks += `\n* ${i.split("@")[0]}
 * *Tag :* @${i.split("@")[0]}\n`
 }
-sock.sendMessage(m.chat, {text: teks, mentions: premium}, {quoted: m})
+sick.sendMessage(m.chat, {text: teks, mentions: premium}, {quoted: m})
 }
 break
 
@@ -581,7 +575,7 @@ if (!isWaz) return reply(mess.owner)
 if (!m.quoted && !text) return m.reply(example("WHERE IS THE NUMBER?"))
 const input = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, "") + "@s.whatsapp.net"
 const input2 = input.split("@")[0]
-if (input2 == global.owner[0] || input == botNumber) return m.reply(`Cannot remove owner!`)
+if (input2 == global.owner || input == botNumber) return m.reply(`Cannot remove owner!`)
 if (!premium.includes(input)) return m.reply(`Number ${input2} is not premium!`)
 let posi = premium.indexOf(input)
 await premium.splice(posi, 1)
@@ -590,6 +584,7 @@ m.reply(`SUCCESSFULLY REMOVED PREMIUM`)
 }
 break
 //=====================================//
+
 
 case "self": {
     if (!isWaz) return m.reply(mess.owner)
@@ -751,6 +746,7 @@ case "s": case "sticker": case "stiker": {
       { author: "Create by wazofc" }
     );
 
+    // delete temporary file
     fs.unlinkSync(mediaPath);
   } catch (err) {
     console.error(err);
@@ -846,6 +842,7 @@ case "cekidch":
                   footer: {
                     text: "powered by Wazz"
                   },
+                  //input watermark footer
                   nativeFlowMessage: {
                     buttons: [{
                       name: "cta_copy",
@@ -863,6 +860,7 @@ case "cekidch":
           });
         }
         break;
+
 
 case "ping": case "os": {
     try {
@@ -1554,7 +1552,7 @@ break
 
 case "listpanelv2": case "listpv2": case "listserverv2": {
 if (!isWaz) return m.reply(mess.owner)
-if (!global.apikeyV2) return m.reply("Apikey not found!\nMake sure *global.apikeyV2* is filled in settings.js!")
+if (!global.apikey) return m.reply("Apikey not found!\nMake sure *global.apikey* is filled in settings.js!")
 let page = 1
 let allServers = []
   while (true) {
@@ -1586,11 +1584,11 @@ let allServers = []
     let status = "unknown"
 
     try {
-      let res = await fetch(`${global.domainV2}/api/client/servers/${uuid}/resources`, {
+      let res = await fetch(`${global.domain}/api/client/servers/${uuid}/resources`, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${global.capikeyV2}`
+          Authorization: `Bearer ${global.capikey}`
         }
       })
       let json = await res.json()
@@ -1612,8 +1610,8 @@ break
 case "delpanelv2":
 case "delpv2": {
   if (!isWaz) return m.reply(mess.owner)
-  if (!global.apikeyV2) return m.reply("Apikey not found!\nMake sure *global.apikeyV2* is filled in settings.js!")
-  if (!args[0]) return m.reply(example(`server id\n\nto see the server id type *${prefix}listpanelv2*`))
+  if (global.apikey.length < 1) return m.reply("Apikey not found!\nMake sure *global.apikey* is filled in settings.js!")
+  if (!args[0]) return m.reply(example(`server id\n\nto see the server id type *${prefix}listpanel*`))
 
   let f = await fetch(global.domainV2 + "/api/application/servers?page=1", {
     method: "GET",
@@ -1631,9 +1629,10 @@ case "delpv2": {
   for (let server of servers) {
     let s = server.attributes
     if (args[0] == s.id.toString()) {
-      deletedUserId = s.user
+      deletedUserId = s.user // <-- get user ID from server
       deletedServerName = s.name
 
+      // Delete server
       await fetch(global.domainV2 + `/api/application/servers/${s.id}`, {
         method: "DELETE",
         headers: {
@@ -1645,6 +1644,7 @@ case "delpv2": {
     }
   }
   if (!deletedUserId) return m.reply("*Server ID* Not Found")
+  // Delete user based on user ID
   await fetch(global.domainV2 + `/api/application/users/${deletedUserId}`, {
     method: "DELETE",
     headers: {
@@ -1658,7 +1658,7 @@ case "delpv2": {
 break
 
 case "cadminv2": case "cadpv2": {
-if (!isWaz) return reply(mess.owner)
+if (!isWaz) return Reply(mess.owner)
 if (!text) return m.reply(example("username"))
 let username = text.toLowerCase()
 let email = username+"@gmail.com"
@@ -1712,7 +1712,7 @@ break
 
 case "deladminv2": case "deladpv2": {
 if (!isWaz) return m.reply(mess.owner)
-if (!args[0]) return m.reply(example(`its id\n\nto see the admin id type *${prefix}listadminv2*`))
+if (!args[0]) return m.reply(example(`its id\n\nto see the admin id type *${prefix}listadmin*`))
 let cek = await fetch(global.domainV2 + "/api/application/users?page=1", {
 "method": "GET",
 "headers": {
@@ -1770,7 +1770,7 @@ m.reply(teks)
 }
 break
 
-case "clearpanelv2": case "clearserverv2": { 
+  case "clearpanelv2": case "clearserverv2": { 
 if (!isWaz) return reply(mess.owner)
 await reply(`*Processing deletion of all users & panel servers ⚠️*`)
 try {
@@ -1822,16 +1822,19 @@ async function deleteNonAdminUsersAndServers() {
   for (const user of users) {
     if (user.attributes.root_admin) {
       console.log(`Skipping admin: ${user.attributes.username}`);
-      continue;
+      continue; // Skip admin
     }
     const userID = user.attributes.id;
     const userEmail = user.attributes.email;
     console.log(`Deleting user: ${user.attributes.username} (${userEmail})`);
+    // Find servers owned by this user
     const userServers = servers.filter(srv => srv.attributes.user === userID);
+    // Delete all this user's servers
     for (const server of userServers) {
       await deleteServer(server.attributes.id);
       totalSrv += 1
     }
+    // Delete user after all their servers are deleted
     await deleteUser(userID);
   }
 await reply(`*Finished Cleaning the Panel ✅*
@@ -1840,6 +1843,7 @@ await reply(`*Finished Cleaning the Panel ✅*
 
 *⚠️ Deleted servers are not admin panels*`)
 }
+// Run function
 return deleteNonAdminUsersAndServers();
 } catch (err) {
 return reply(`${JSON.stringify(err, null, 2)}`)
@@ -1849,9 +1853,9 @@ break
 
 case "addserver": case "addsrv": {
   if (!isWaz) return m.reply(mess.owner)
-  if (!text) return m.reply(example(`id,name,ram\nType: *${prefix}listpanelv2* to see id`));
+  if (!text) return m.reply(example(`id,name,ram\nType: *${prefix}listpanel* to see id`));
   let [usr_id, nama, ramInput] = text.split(",");
-  if (!usr_id || !nama || !ramInput) return m.reply(example(`id,name,ram\nType: *${prefix}listpanelv2* to see id`));
+  if (!usr_id || !nama || !ramInput) return m.reply(example(`id,name,ram\nType: *${prefix}listpanel* to see id`));
   usr_id = usr_id.trim();
   nama = nama.trim();
   ramInput = ramInput.trim().toLowerCase();
@@ -1865,14 +1869,14 @@ case "addserver": case "addsrv": {
     if (gb < 1 || gb > 10) return reply("RAM can only be from 1GB to 10GB or 'unli'");
     ram = gb * 1000;
     disknya = gb * 1000;
-    cpu = 20 + (gb * 20);
+    cpu = 20 + (gb * 20); // example: 1gb = 40%, 2gb = 60%, etc
   } else {
     return reply("Wrong RAM format. Use like: 1gb - unli");
   }
 
-  const desc = date(Date.now());
+  const desc = tanggal(Date.now());
 
-  const getEgg = await fetch(`${global.domainV2}/api/application/nests/${nestidV2}/eggs/${eggV2}`, {
+  const getEgg = await fetch(`${global.domainV2}/api/application/nests/${nestid}/eggs/${egg}`, {
     method: "GET",
     headers: {
       Accept: "application/json",
@@ -1895,7 +1899,7 @@ case "addserver": case "addsrv": {
       name: nama,
       description: desc,
       user: parseInt(usr_id),
-      egg: parseInt(eggV2),
+      egg: parseInt(egg),
       docker_image: "ghcr.io/parkervcp/yolks:nodejs_20",
       startup: startup_cmd,
       environment: {
@@ -1911,7 +1915,7 @@ case "addserver": case "addsrv": {
       },
       feature_limits: { databases: 5, backups: 5, allocations: 5 },
       deploy: {
-        locations: [parseInt(locV2)],
+        locations: [parseInt(loc)],
         dedicated_ip: false,
         port_range: [],
       },
@@ -2155,7 +2159,7 @@ break
 case "delpanel":
 case "delp": {
   if (!isWaz) return m.reply(mess.owner)
-  if (!global.apikey) return m.reply("Apikey not found!\nMake sure *global.apikey* is filled in settings.js!")
+  if (global.apikey.length < 1) return m.reply("Apikey not found!\nMake sure *global.apikey* is filled in settings.js!")
   if (!args[0]) return m.reply(example(`server id\n\nto see the server id type *${prefix}listpanel*`))
 
   let f = await fetch(global.domain + "/api/application/servers?page=1", {
@@ -2174,9 +2178,10 @@ case "delp": {
   for (let server of servers) {
     let s = server.attributes
     if (args[0] == s.id.toString()) {
-      deletedUserId = s.user
+      deletedUserId = s.user // <-- get user ID from server
       deletedServerName = s.name
 
+      // Delete server
       await fetch(global.domain + `/api/application/servers/${s.id}`, {
         method: "DELETE",
         headers: {
@@ -2188,6 +2193,7 @@ case "delp": {
     }
   }
   if (!deletedUserId) return m.reply("*Server ID* Not Found")
+  // Delete user based on user ID
   await fetch(global.domain + `/api/application/users/${deletedUserId}`, {
     method: "DELETE",
     headers: {
@@ -2253,7 +2259,7 @@ await sock.sendMessage(orang, {
 break
 
 case "cadmin2": {
-if (!isWaz) return reply(mess.owner)
+if (!isWaz) return Reply(mess.owner)
 if (!text) return m.reply(example("username"))
 let username = text.toLowerCase()
 let email = username+"@gmail.com"
@@ -2417,16 +2423,19 @@ async function deleteNonAdminUsersAndServers() {
   for (const user of users) {
     if (user.attributes.root_admin) {
       console.log(`Skipping admin: ${user.attributes.username}`);
-      continue;
+      continue; // Skip admin
     }
     const userID = user.attributes.id;
     const userEmail = user.attributes.email;
     console.log(`Deleting user: ${user.attributes.username} (${userEmail})`);
+    // Find servers owned by this user
     const userServers = servers.filter(srv => srv.attributes.user === userID);
+    // Delete all this user's servers
     for (const server of userServers) {
       await deleteServer(server.attributes.id);
       totalSrv += 1
     }
+    // Delete user after all their servers are deleted
     await deleteUser(userID);
   }
 await reply(`*Finished Cleaning the Panel ✅*
@@ -2435,6 +2444,7 @@ await reply(`*Finished Cleaning the Panel ✅*
 
 *⚠️ Deleted servers are not admin panels*`)
 }
+// Run function
 return deleteNonAdminUsersAndServers();
 } catch (err) {
 return reply(`${JSON.stringify(err, null, 2)}`)
@@ -2460,12 +2470,12 @@ case "addserver": case "addsrv": {
     if (gb < 1 || gb > 10) return reply("RAM can only be from 1GB to 10GB or 'unli'");
     ram = gb * 1000;
     disknya = gb * 1000;
-    cpu = 20 + (gb * 20);
+    cpu = 20 + (gb * 20); // example: 1gb = 40%, 2gb = 60%, etc
   } else {
     return reply("Wrong RAM format. Use like: 1gb - unli");
   }
 
-  const desc = date(Date.now());
+  const desc = tanggal(Date.now());
 
   const getEgg = await fetch(`${global.domain}/api/application/nests/${nestid}/eggs/${egg}`, {
     method: "GET",
@@ -2571,7 +2581,7 @@ default: {
  }
 } catch (err) {
 console.log(err)
-await sock.sendMessage(global.owner[0]+"@s.whatsapp.net", {text: err.toString()}, {quoted: m})
+await sock.sendMessage(global.owner+"@s.whatsapp.net", {text: err.toString()}, {quoted: m})
 }}
 
 //=============================================//
