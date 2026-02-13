@@ -222,8 +222,4 @@ This project is protected under the MIT License. See the LICENSE file for detail
 
 <br>
 
-https://img.shields.io/badge/Repo-GitHub-181717?style=flat-square&logo=github
-https://img.shields.io/github/stars/det-core/CPanel-Bot?style=flat-square
-https://img.shields.io/github/forks/det-core/CPanel-Bot?style=flat-square
-
 </div>
