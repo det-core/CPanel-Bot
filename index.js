@@ -31,6 +31,7 @@ import path from "path";
 import readline from "readline"
 import qrcode from "qrcode-terminal";
 import { fileTypeFromBuffer } from "file-type";
+import { getBuffer, getSizeMedia } from './lib/function.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -164,7 +165,6 @@ async function startBot() {
   }
 });
 
-
 sock.ev.on("messages.upsert", async (chatUpdate) => {
   try {
     if (chatUpdate.type !== "notify") return 
@@ -204,7 +204,6 @@ sock.downloadAndSaveMediaMessage = async (message, filename, attachExtension = t
     const Randoms = Date.now();
     const fil = Randoms;
 
-    // pastikan folder ./data/trash ada
     if (!fs.existsSync("./data/trash")) {
       fs.mkdirSync("./data/trash", { recursive: true });
     }
@@ -225,24 +224,23 @@ sock.downloadAndSaveMediaMessage = async (message, filename, attachExtension = t
 
     return trueFileName;
   } catch (err) {
-    console.error("Error saat download media:", err);
+    console.error("Error downloading media:", err);
     return null;
   }
 };
 
-   sock.downloadM = async (m, type, filename = '') => {
-        if (!m || !(m.url || m.directPath)) return Buffer.alloc(0)
-        const stream = await downloadContentFromMessage(m, type)
-        let buffer = Buffer.from([])
-        for await (const chunk of stream) {
-        buffer = Buffer.concat([buffer, chunk])
-        }
-        if (filename) await fs.promises.writeFile(filename, buffer)
-        return filename && fs.existsSync(filename) ? filename : buffer
-   }
-   
-   
-   sock.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
+sock.downloadM = async (m, type, filename = '') => {
+    if (!m || !(m.url || m.directPath)) return Buffer.alloc(0)
+    const stream = await downloadContentFromMessage(m, type)
+    let buffer = Buffer.from([])
+    for await (const chunk of stream) {
+    buffer = Buffer.concat([buffer, chunk])
+    }
+    if (filename) await fs.promises.writeFile(filename, buffer)
+    return filename && fs.existsSync(filename) ? filename : buffer
+}
+
+sock.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
     let buff = Buffer.isBuffer(path)
         ? path
         : /^data:.*?\/.*?;base64,/i.test(path)
@@ -262,9 +260,9 @@ sock.downloadAndSaveMediaMessage = async (message, filename, attachExtension = t
 
     await sock.sendMessage(jid, { sticker: { url: buffer }, ...options }, { quoted });
     return buffer;
-    };
+};
 
-    sock.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
+sock.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
     let buff = Buffer.isBuffer(path)
         ? path
         : /^data:.*?\/.*?;base64,/i.test(path)
@@ -284,90 +282,29 @@ sock.downloadAndSaveMediaMessage = async (message, filename, attachExtension = t
 
     await sock.sendMessage(jid, { sticker: { url: buffer }, ...options }, { quoted });
     return buffer;
+};
+
+sock.getFile = async (PATH, save) => {
+    let res
+    let data = Buffer.isBuffer(PATH) ? PATH : /^data:.*?\/.*?;base64,/i.test(PATH) ? Buffer.from(PATH.split`,`[1], 'base64') : /^https?:\/\//.test(PATH) ? await (res = await getBuffer(PATH)) : fs.existsSync(PATH) ? fs.readFileSync(PATH) : typeof PATH === 'string' ? PATH : Buffer.alloc(0)
+
+    let type = await fileTypeFromBuffer(data) || {
+      mime: "application/octet-stream",
+      ext: "bin"
     };
     
-    sock.getFile = async (PATH, save) => {
-        let res
-        let data = Buffer.isBuffer(PATH) ? PATH : /^data:.*?\/.*?;base64,/i.test(PATH) ? Buffer.from(PATH.split`,`[1], 'base64') : /^https?:\/\//.test(PATH) ? await (res = await getBuffer(PATH)) : fs.existsSync(PATH) ? (filename = PATH, fs.readFileSync(PATH)) : typeof PATH === 'string' ? PATH : Buffer.alloc(0)
-
-        let type = await fileTypeFromBuffer(data) || {
-          mime: "application/octet-stream",
-          ext: "bin"
-        };
-        
-        filename = path.join(__filename, './data/trash/' + new Date * 1 + '.' + type.ext)
-        if (data && save) fs.promises.writeFile(filename,
-        data)
-        return {
-            res,
-            filename,
-	    size: await getSizeMedia(data),
-            ...type,
-            data
-        }
-
+    let filename = path.join(__dirname, './data/trash/' + new Date() * 1 + '.' + type.ext)
+    if (data && save) await fs.promises.writeFile(filename, data)
+    return {
+        res,
+        filename,
+        size: await getSizeMedia(data),
+        ...type,
+        data
     }
-
-    sock.sendFile = async (jid, path, filename = '', caption = '', quoted, ptt = false, options = {}) => {
-  let type = await sock.getFile(path, true);
-  let { res, data: file, filename: pathFile } = type;
-
-  if (res && res.status !== 200 || file.length <= 65536) {
-    try {
-      throw {
-        json: JSON.parse(file.toString())
-      };
-    } catch (e) {
-      if (e.json) throw e.json;
-    }
-  }
-
-  let opt = {
-    filename
-  };
-
-  if (quoted) opt.quoted = quoted;
-  if (!type) options.asDocument = true;
-
-  let mtype = '',
-    mimetype = type.mime,
-    convert;
-  
-  if (/webp/.test(type.mime) || (/image/.test(type.mime) && options.asSticker)) mtype = 'sticker';
-  else if (/image/.test(type.mime) || (/webp/.test(type.mime) && options.asImage)) mtype = 'image';
-  else if (/video/.test(type.mime)) mtype = 'video';
-  else if (/audio/.test(type.mime)) {
-    convert = await (ptt ? toPTT : toAudio)(file, type.ext);
-    file = convert.data;
-    pathFile = convert.filename;
-    mtype = 'audio';
-    mimetype = 'audio/ogg; codecs=opus';
-  } else mtype = 'document';
-
-  if (options.asDocument) mtype = 'document';
-
-  delete options.asSticker;
-  delete options.asLocation;
-  delete options.asVideo;
-  delete options.asDocument;
-  delete options.asImage;
-
-  let message = { ...options, caption, ptt, [mtype]: { url: pathFile }, mimetype };
-  let m;
-
-  try {
-    m = await sock.sendMessage(jid, message, { ...opt, ...options });
-  } catch (e) {
-    //console.error(e)
-    m = null;
-  } finally {
-    if (!m) m = await sock.sendMessage(jid, { ...message, [mtype]: file }, { ...opt, ...options });
-    file = null;
-    return m;
-  }
 }
 
-    sock.sendContact = async (jid, kon = [], name, desk = "Developer Bot", quoted = '', opts = {}) => {
+sock.sendContact = async (jid, kon = [], name, desk = "Developer Bot", quoted = '', opts = {}) => {
     const list = kon.map(i => ({
       displayName: typeof name !== 'undefined' ? name : 'Unknown',
       vcard:
@@ -386,11 +323,11 @@ sock.downloadAndSaveMediaMessage = async (message, filename, attachExtension = t
 
     await sock.sendMessage(
       jid,
-      { contacts: { displayName: `${list.length} Kontak`, contacts: list }, ...opts },
+      { contacts: { displayName: `${list.length} Contact`, contacts: list }, ...opts },
       { quoted }
     );
-   }
- }
+  }
+}
 
 startBot();
 
